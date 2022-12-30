@@ -11,15 +11,39 @@ namespace ChessHorse
         {
             ChessDesk chessDesk = new ChessDesk();
 
-            for (int i = 0; i < 8; i++)
+            for (int i = 0; i < 4; i++)
             {
-                for (int j = 0; j < 8; j++)
+                for (int j = 0; j < 4; j++)
                 {
                     chessDesk.initDesk();
                     Console.WriteLine("i = " + i + " | j = " + j);
                     if (chessDesk.calcDesk(i, j))
                     {
                         chessDesk.showDesk();
+
+                        int ii, jj;
+
+                        ii = j;
+                        jj = 7 - i; 
+                        
+                        Console.WriteLine("i = "  + ii + " | j = " + jj);
+                        chessDesk.transponDesk();
+                        chessDesk.showDesk();
+
+                        ii = 7 - i;
+                        jj = 7 - j;
+
+                        Console.WriteLine("i = " + ii + " | j = " + jj);
+                        chessDesk.transponDesk();
+                        chessDesk.showDesk();
+
+                        ii = 7 - j;
+                        jj = i;
+
+                        Console.WriteLine("i = " + ii + " | j = " + jj);
+                        chessDesk.transponDesk();
+                        chessDesk.showDesk();
+
                     }
                     else
                     {
@@ -91,7 +115,7 @@ namespace ChessHorse
 
             chess[row, col] = step;
 
-            while (step < 64 && rollbacks < 2000000 && (tryStep() || findAlternative())) {
+            while (step < 64 && rollbacks < 5000000 && (tryStep() || findAlternative())) {
                 optionDeadlock = 0;
                 step++;
                 chess[row, col] = step;
@@ -185,6 +209,21 @@ namespace ChessHorse
         public int getMaxStep()
         { 
             return maxStep;
+        }
+
+        public void transponDesk()
+        {
+            int[,] newChess = new int[8, 8];
+
+            for (int i = 0; i < 8; i++)
+            {
+                for (int j = 0; j < 8; j++)
+                {
+                    newChess[i, j] = chess[7 - j, i];
+                }
+            }
+
+            chess = newChess;   
         }
 
     }
