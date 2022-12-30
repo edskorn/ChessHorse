@@ -1,53 +1,44 @@
 ﻿using System;
-using System.Diagnostics;
 
 namespace ChessHorse
 {
     internal class Program
     {
-
-
         static void Main(string[] args)
         {
             ChessDesk chessDesk = new ChessDesk();
 
+            //check the possibility of filling the chess desk in a quater range,  
+            //because we can get solutions in other ranges by rotating the found result
             for (int i = 0; i < 4; i++)
             {
                 for (int j = 0; j < 4; j++)
                 {
-                    chessDesk.initDesk();
+                    chessDesk.InitDesk();
                     Console.WriteLine("i = " + i + " | j = " + j);
-                    if (chessDesk.calcDesk(i, j))
+                    if (chessDesk.CalcDesk(i, j))
                     {
-                        chessDesk.showDesk();
-
-                        int ii, jj;
-
-                        ii = j;
-                        jj = 7 - i; 
+                        //show result from i,j position 
+                        chessDesk.ShowDesk();
                         
-                        Console.WriteLine("i = "  + ii + " | j = " + jj);
-                        chessDesk.transponDesk();
-                        chessDesk.showDesk();
+                        //rotate result 3 times to show other 3 solutions
 
-                        ii = 7 - i;
-                        jj = 7 - j;
+                        Console.WriteLine("i = "  + j + " | j = " + (7-i));
+                        chessDesk.RotateDesk();
+                        chessDesk.ShowDesk();
 
-                        Console.WriteLine("i = " + ii + " | j = " + jj);
-                        chessDesk.transponDesk();
-                        chessDesk.showDesk();
+                        Console.WriteLine("i = " + (7 - i) + " | j = " + (7 - j));
+                        chessDesk.RotateDesk();
+                        chessDesk.ShowDesk();
 
-                        ii = 7 - j;
-                        jj = i;
-
-                        Console.WriteLine("i = " + ii + " | j = " + jj);
-                        chessDesk.transponDesk();
-                        chessDesk.showDesk();
+                        Console.WriteLine("i = " + (7 - j) + " | j = " + i);
+                        chessDesk.RotateDesk();
+                        chessDesk.ShowDesk();
 
                     }
                     else
                     {
-                        Console.WriteLine("Max step = " + chessDesk.getMaxStep());
+                        Console.WriteLine("Max step = " + chessDesk.GetMaxStep());
                     }
                 }
                 
@@ -59,18 +50,19 @@ namespace ChessHorse
     {
         int[,] chess = new int[8, 8];
 
-        int row, col, step;
-        int rowDeadlock, colDeadlock;
-        int optionDeadlock = 0;
-        int maxStep = 0;
-        int minRollback = 64;
-        int rollbacks = 0;
+        int row, col, step; //current Horse position and step number
+        int rowDeadlock, colDeadlock; //last deadlock position, where Horse can't move any more
+        int directionDeadlock = 0; //deadlock direction index (used for finding alternatives with
+                                   //next direction index - it excepts loops)
+        int maxStep = 0; //maх step number was found from i,j possition 
+        int rollback = 0; //number of reverse steps (when Horse meet a deadlock)
+        int rollbackLimit = 2000000; //for loop break
 
-        //step options for Horse
-        int[,] steps = { 
+        //direction options for Horse
+        readonly int[,] directions = { 
             { -2, 1}, 
             { -1, 2}, 
-            { 1, 2 },
+            { 1, 2},
             { 2, 1},
             { 2, -1},
             { 1, -2},
@@ -78,7 +70,12 @@ namespace ChessHorse
             { -2, -1}
         };
 
-        public void showDesk()
+        public int GetMaxStep()
+        {
+            return maxStep;
+        }
+
+        public void ShowDesk()
         {
             for (int i = 0; i < 8; i++)
             {
@@ -91,13 +88,12 @@ namespace ChessHorse
             }
         }
 
-        public void initDesk()
+        public void InitDesk()
         {
             step = 1;
 
             maxStep = 0;
-            minRollback = 64;
-            rollbacks = 0;
+            rollback = 0;
 
             for (int i = 0; i < 8; i++)
             {
@@ -108,35 +104,36 @@ namespace ChessHorse
             }
         }
 
-        public bool calcDesk(int i, int j)
+        public bool CalcDesk(int i, int j)
         {
             row = i;
             col = j;
 
             chess[row, col] = step;
 
-            while (step < 64 && rollbacks < 5000000 && (tryStep() || findAlternative())) {
-                optionDeadlock = 0;
-                step++;
-                chess[row, col] = step;
+            while (step < 64 && rollback < rollbackLimit && (TryStep() || FindAlternative())) 
+            {
+                directionDeadlock = 0;
+
+                //step++;
+                chess[row, col] = ++step;
 
                 maxStep = step > maxStep ? step : maxStep;
-
             }
 
-            return step == 64 ? true : false;
+            return step == 64;
         }
 
-        bool tryStep()
+        bool TryStep()
         {
             bool result = false;
 
-            int stepOption = optionDeadlock;
+            int direction = directionDeadlock;
 
-            while (stepOption < 8 && !result)
+            while (direction < 8 && !result)
             {
-                row += steps[stepOption, 0];
-                col += steps[stepOption, 1];
+                row += directions[direction, 0];
+                col += directions[direction, 1];
 
                 if (row < 8 && row >= 0 && col < 8 && col >= 0 && chess[row, col] == 0)
                 {
@@ -144,24 +141,24 @@ namespace ChessHorse
                 }
                 else 
                 {
-                    row -= steps[stepOption, 0];
-                    col -= steps[stepOption, 1];
+                    row -= directions[direction, 0];
+                    col -= directions[direction, 1];
                 } 
 
-                stepOption++;
+                direction++;
             }
             
             return result;
         }
 
-        bool findAlternative()
+        bool FindAlternative()
         {
             bool result = false;
 
             while (step != 1 && !result)
             {
-                findPrev();
-                if (tryStep())
+                FindPrev();
+                if (TryStep())
                 {
                     result = true;
                 }
@@ -169,49 +166,44 @@ namespace ChessHorse
                 step--;
             }
 
-            rollbacks++;
-            minRollback = step < minRollback ? step : minRollback;
+            rollback++;
 
-            return step == 1 ? false : true;
+            return step != 1;
         }
 
-        void findPrev()
+        void FindPrev()
         {
-            chess[row, col] = -1;
+            //mark current possition as deadlock
+            chess[row, col] = -1; 
             rowDeadlock = row;
             colDeadlock = col;
 
             bool result = false;
 
-            int stepOption = 0;
+            int direction = 0;
 
-            while (stepOption < 8 && !result)
+            while (direction < 8 && !result)
             {
-                row += steps[stepOption, 0];
-                col += steps[stepOption, 1];
+                row += directions[direction, 0];
+                col += directions[direction, 1];
 
                 if (row < 8 && row >= 0 && col < 8 && col >= 0 && chess[row, col] == step - 1)
                 {
-                    optionDeadlock = stepOption > 3 ? stepOption - 4 : stepOption + 4;
+                    directionDeadlock = direction > 3 ? direction - 4 : direction + 4;
                     result = true;
                 }
                 else
                 {
-                    row -= steps[stepOption, 0];
-                    col -= steps[stepOption, 1];
+                    row -= directions[direction, 0];
+                    col -= directions[direction, 1];
                 }
 
-                stepOption++;
+                direction++;
             }
 
         }
 
-        public int getMaxStep()
-        { 
-            return maxStep;
-        }
-
-        public void transponDesk()
+        public void RotateDesk()
         {
             int[,] newChess = new int[8, 8];
 
