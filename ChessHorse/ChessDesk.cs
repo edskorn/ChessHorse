@@ -5,8 +5,8 @@ namespace ChessHorse
     class ChessDesk
     {
 
-        private int deskDimentionX;
-        private int deskDimentionY;
+        private int deskDimensionX;
+        private int deskDimensionY;
 
         private int[,] chess; //chess desk
 
@@ -27,23 +27,23 @@ namespace ChessHorse
         /// <summary>
         /// ChessDesk Constructor
         /// </summary>
-        /// <param name="deskDimentionX">chess desk X dimention</param>
-        /// <param name="deskDimentionY">chess desk Y dimention</param>
-        public ChessDesk(int deskDimentionX, int deskDimentionY)
+        /// <param name="deskDimensionX">chess desk X dimension</param>
+        /// <param name="deskDimensionY">chess desk Y dimension</param>
+        public ChessDesk(int deskDimensionX, int deskDimensionY)
         {
-            this.deskDimentionX = deskDimentionX;
-            this.deskDimentionY = deskDimentionY;
-            this.chess = new int[deskDimentionX, deskDimentionY];
+            this.deskDimensionX = deskDimensionX;
+            this.deskDimensionY = deskDimensionY;
+            this.chess = new int[deskDimensionX, deskDimensionY];
         }
 
         /// <summary>
-        /// Output the solution was found from i,j possition
+        /// Output the solution was found from i,j position
         /// </summary>
         public void ShowDesk()
         {
-            for (int i = 0; i < deskDimentionX; i++)
+            for (int i = 0; i < deskDimensionX; i++)
             {
-                for (int j = 0; j < deskDimentionY; j++)
+                for (int j = 0; j < deskDimensionY; j++)
                 {
                     string formatedStep = string.Format("{0:d2}", chess[i, j]);
                     Console.Write(formatedStep + " ");
@@ -59,9 +59,9 @@ namespace ChessHorse
         {
             step = 1;
 
-            for (int i = 0; i < deskDimentionX; i++)
+            for (int i = 0; i < deskDimensionX; i++)
             {
-                for (int j = 0; j < deskDimentionY; j++)
+                for (int j = 0; j < deskDimensionY; j++)
                 {
                     chess[i, j] = 0;
                 }
@@ -105,7 +105,7 @@ namespace ChessHorse
                 int xWay = x + directions[direction, 0];
                 int yWay = y + directions[direction, 1];
 
-                if (xWay < deskDimentionX && xWay >= 0 && yWay < deskDimentionY && yWay >= 0 && chess[xWay, yWay] == 0)
+                if (xWay < deskDimensionX && xWay >= 0 && yWay < deskDimensionY && yWay >= 0 && chess[xWay, yWay] == 0)
                 {
                     int countWays = CountPossibleWays(xWay, yWay);
 
@@ -137,7 +137,7 @@ namespace ChessHorse
                 int xWay = x + directions[direction, 0];
                 int yWay = y + directions[direction, 1];
 
-                if (xWay < deskDimentionX && xWay >= 0 && yWay < deskDimentionY && yWay >= 0 && chess[xWay, yWay] == 0)
+                if (xWay < deskDimensionX && xWay >= 0 && yWay < deskDimensionY && yWay >= 0 && chess[xWay, yWay] == 0)
                 {
                     countWays++;
                 }

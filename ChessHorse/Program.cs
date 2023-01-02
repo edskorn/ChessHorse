@@ -6,11 +6,10 @@ namespace ChessHorse
     {
         static void Main(string[] args)
         {
-            Console.Write("Input chess desk X dimention: ");
-            int dimX = Convert.ToInt32(Console.ReadLine());
+            const int dimLimit = 20; //Limit of the chess desk dimension
 
-            Console.Write("Input chess desk Y dimention: ");
-            int dimY = Convert.ToInt32(Console.ReadLine());
+            int dimX = InputDimension("X", dimLimit);
+            int dimY = InputDimension("Y", dimLimit);
 
             ChessDesk chessDesk = new ChessDesk(dimX, dimY);
 
@@ -25,7 +24,6 @@ namespace ChessHorse
 
                     if (stepCount == dimX * dimY)
                     {
-                        //show result from i,j position 
                         chessDesk.ShowDesk();
                     }
                     else
@@ -34,6 +32,33 @@ namespace ChessHorse
                     }
                 }
             }
+        }
+
+        /// <summary>
+        /// Read value from Console and parse to int with a given limit
+        /// </summary>
+        /// <param name="axis">Axis name (X or Y)</param>
+        /// <param name="limit">Input value limit (max value)</param>
+        /// <returns></returns>
+        public static int InputDimension(string axis, int limit) 
+        {
+            int dimension;
+            
+            bool loopResult = false;
+            do
+            {
+                Console.Write("Input chess desk {0} dimention (1-{1}): ", axis, limit);
+                if (int.TryParse(Console.ReadLine(), out dimension) && dimension >= 1 && dimension <= limit)
+                {
+                    loopResult = true;
+                }
+                else
+                {
+                    Console.WriteLine("INPUT ERROR. Pls, input number in range 1-{0}.", limit);
+                }
+            } while (!loopResult);
+
+            return dimension;
         }
     }
 }
