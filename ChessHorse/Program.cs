@@ -16,7 +16,10 @@ namespace ChessHorse
                 {
                     chessDesk.InitDesk();
                     Console.WriteLine("i = " + i + " | j = " + j);
-                    if (chessDesk.CalcDesk(i, j))
+
+                    int stepCount = chessDesk.WarnsdorffCalc(i, j);
+
+                    if (stepCount == 64)
                     {
                         //show result from i,j position 
                         chessDesk.ShowDesk();
@@ -38,7 +41,7 @@ namespace ChessHorse
                     }
                     else
                     {
-                        Console.WriteLine("Max step = " + chessDesk.GetMaxStep());
+                        Console.WriteLine("Max step = " + stepCount);
                     }
                 }
             }

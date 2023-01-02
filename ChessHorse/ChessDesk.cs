@@ -25,12 +25,18 @@ namespace ChessHorse
             { -1, -2},
             { -2, -1}
         };
-
+        /// <summary>
+        /// Public getter for maxStep
+        /// </summary>
+        /// <returns>Maх step number was found from i,j possition</returns>
         public int GetMaxStep()
         {
             return maxStep;
         }
 
+        /// <summary>
+        /// Output the solution was found from i,j possition
+        /// </summary>
         public void ShowDesk()
         {
             for (int i = 0; i < 8; i++)
@@ -44,6 +50,9 @@ namespace ChessHorse
             }
         }
 
+        /// <summary>
+        /// Reset desk (all sells are set by 0) and step number
+        /// </summary>
         public void InitDesk()
         {
             step = 1;
@@ -60,6 +69,12 @@ namespace ChessHorse
             }
         }
 
+        /// <summary>
+        /// Find solution from i,j possition
+        /// </summary>
+        /// <param name="i">row start position</param>
+        /// <param name="j">column start position</param>
+        /// <returns>True - if soution was found</returns>
         public bool CalcDesk(int i, int j)
         {
             row = i;
@@ -79,6 +94,10 @@ namespace ChessHorse
             return step == 64;
         }
 
+        /// <summary>
+        /// Find next possible step and do it (mark the found sell by step number) if it possible
+        /// </summary>
+        /// <returns>True - if next step is done</returns>
         private bool TryStep()
         {
             bool result = false;
@@ -106,6 +125,11 @@ namespace ChessHorse
             return result;
         }
 
+        /// <summary>
+        /// Take a reverse step until a new alternative step is found.
+        /// Break loop if step number == 1 or a new alternative step is found.
+        /// </summary>
+        /// <returns>True - if new alternative step is found</returns>
         private bool FindAlternative()
         {
             bool result = false;
@@ -126,9 +150,12 @@ namespace ChessHorse
             return step != 1;
         }
 
+        /// <summary>
+        /// Find previous position and take a step to it
+        /// </summary>
         private void FindPrev()
         {
-            //mark current possition as deadlock
+            //mark current position as deadlock
             chess[row, col] = -1;
             rowDeadlock = row;
             colDeadlock = col;
@@ -158,6 +185,9 @@ namespace ChessHorse
 
         }
 
+        /// <summary>
+        /// Make a new solution by rotating the current solution 90° clockwise
+        /// </summary>
         public void RotateDesk()
         {
             int[,] newChess = new int[8, 8];
@@ -171,6 +201,65 @@ namespace ChessHorse
             }
 
             chess = newChess;
+        }
+
+        public int WarnsdorffCalc(int x, int y)
+        {
+            chess[x, y] = step++;
+
+            int direction = FindWarnsdorffDirection(x, y);
+            if (direction == -1)
+            {
+                return 1;
+            }
+            return 1 + WarnsdorffCalc(x + directions[direction, 0], y + directions[direction, 1]);
+        }
+
+        private int FindWarnsdorffDirection(int x, int y)
+        {
+            int resultDirection = -1;
+
+            int minWays = 8;
+
+            for (int direction = 0; direction < 8; direction++)
+            {
+
+                int xWay = x + directions[direction, 0];
+                int yWay = y + directions[direction, 1];
+
+                if (xWay < 8 && xWay >= 0 && yWay < 8 && yWay >= 0 && chess[xWay, yWay] == 0)
+                {
+                    int countWays = CountPossibleWays(xWay, yWay);
+
+                    if (countWays < minWays)
+                    {
+                        minWays = countWays;
+                        resultDirection = direction;
+                    }
+
+                    if (minWays == 1) break;
+                }
+            }
+
+            return resultDirection;
+        }
+
+        private int CountPossibleWays(int x, int y)
+        {
+            int countWays = 0;
+
+            for (int direction = 0; direction < 8; direction++)
+            {
+                int xWay = x + directions[direction, 0];
+                int yWay = y + directions[direction, 1];
+
+                if (xWay < 8 && xWay >= 0 && yWay < 8 && yWay >= 0 && chess[xWay, yWay] == 0)
+                {
+                    countWays++;
+                }
+            }
+
+            return countWays;
         }
     }
 }
